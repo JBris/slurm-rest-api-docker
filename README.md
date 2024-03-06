@@ -1,130 +1,30 @@
-# Slurm Docker Cluster
+# Slurm REST Docker Cluster
 
-This is a multi-container Slurm cluster using docker-compose.  The compose file
-creates named volumes for persistent storage of MySQL data files as well as
-Slurm state and log directories.
+# Table of contents
 
-## Containers and Volumes
+- [Slurm REST Docker Cluster](#slurm-rest-docker-cluster)
+- [Table of contents](#table-of-contents)
+- [Introduction](#introduction)
+- [REST API](#rest-api)
 
-The compose file will run the following containers:
+# Introduction
 
-* mysql
-* slurmdbd
-* slurmctld
-* c1 (slurmd)
-* c2 (slurmd)
+[This is a fork of the SLURM Docker repo here.](https://github.com/giovtorres/slurm-docker-cluster)
 
-The compose file will create the following named volumes:
+[The principal difference is that the dependencies required for the SLURM REST API have been included in the image build.](https://slurm.schedmd.com/rest.html)
 
-* etc_munge         ( -> /etc/munge     )
-* etc_slurm         ( -> /etc/slurm     )
-* slurm_jobdir      ( -> /data          )
-* var_lib_mysql     ( -> /var/lib/mysql )
-* var_log_slurm     ( -> /var/log/slurm )
+# REST API
 
-## Building the Docker Image
+Run `docker compose up -d` to launch a local SLURM cluster.
 
-Build the image locally:
+Within the *c2* node, set the JSON web token: `export $(docker compose exec c2 scontrol token)`
 
-```console
-docker build -t slurm-docker-cluster:21.08.6 .
-```
+Test that the SLURM_JWT environment variable is set: `echo $SLURM_JWT`
 
-Build a different version of Slurm using Docker build args and the Slurm Git
-tag:
+Test that you can view the OpenAPI documentation: `curl -k -vvvv -H X-SLURM-USER-TOKEN:$SLURM_JWT -H X-SLURM-USER-NAME:root -X GET 'http://localhost:9200/openapi/v3'`
 
-```console
-docker build --build-arg SLURM_TAG="slurm-19-05-2-1" -t slurm-docker-cluster:19.05.2 .
-```
+Export the API version: `export SLURM_API_VERSION=v0.0.37`
 
-Or equivalently using `docker-compose`:
+curl -k -vvvv "http://c2:9200/slurm/${SLURM_API_VERSION}/job/submit" -X POST -H X-SLURM-USER-TOKEN:$SLURM_JWT -H X-SLURM-USER-NAME:root -H Content-Type:application/json -d '{ "job": { "environment": {"test": "env" }, "script": "touch test.txt" } }'
 
-```console
-SLURM_TAG=slurm-19-05-2-1 IMAGE_TAG=19.05.2 docker-compose build
-```
-
-
-## Starting the Cluster
-
-Run `docker-compose` to instantiate the cluster:
-
-```console
-IMAGE_TAG=19.05.2 docker-compose up -d
-```
-
-## Register the Cluster with SlurmDBD
-
-To register the cluster to the slurmdbd daemon, run the `register_cluster.sh`
-script:
-
-```console
-./register_cluster.sh
-```
-
-> Note: You may have to wait a few seconds for the cluster daemons to become
-> ready before registering the cluster.  Otherwise, you may get an error such
-> as **sacctmgr: error: Problem talking to the database: Connection refused**.
->
-> You can check the status of the cluster by viewing the logs: `docker-compose
-> logs -f`
-
-## Accessing the Cluster
-
-Use `docker exec` to run a bash shell on the controller container:
-
-```console
-docker exec -it slurmctld bash
-```
-
-From the shell, execute slurm commands, for example:
-
-```console
-[root@slurmctld /]# sinfo
-PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
-normal*      up 5-00:00:00      2   idle c[1-2]
-```
-
-## Submitting Jobs
-
-The `slurm_jobdir` named volume is mounted on each Slurm container as `/data`.
-Therefore, in order to see job output files while on the controller, change to
-the `/data` directory when on the **slurmctld** container and then submit a job:
-
-```console
-[root@slurmctld /]# cd /data/
-[root@slurmctld data]# sbatch --wrap="hostname"
-Submitted batch job 2
-[root@slurmctld data]# ls
-slurm-2.out
-[root@slurmctld data]# cat slurm-2.out
-c1
-```
-
-## Stopping and Restarting the Cluster
-
-```console
-docker-compose stop
-docker-compose start
-```
-
-## Deleting the Cluster
-
-To remove all containers and volumes, run:
-
-```console
-docker-compose stop
-docker-compose rm -f
-docker volume rm slurm-docker-cluster_etc_munge slurm-docker-cluster_etc_slurm slurm-docker-cluster_slurm_jobdir slurm-docker-cluster_var_lib_mysql slurm-docker-cluster_var_log_slurm
-```
-## Updating the Cluster
-
-If you want to change the `slurm.conf` or `slurmdbd.conf` file without a rebuilding you can do so by calling
-```console
-./update_slurmfiles.sh slurm.conf slurmdbd.conf
-```
-(or just one of the files).
-The Cluster will automatically be restarted afterwards with
-```console
-docker-compose restart
-```
-This might come in handy if you add or remove a node to your cluster or want to test a new setting.
+curl -k -vvvv "http://c2:9200/slurm/${SLURM_API_VERSION}/job/21" -H X-SLURM-USER-TOKEN:$SLURM_JWT -H X-SLURM-USER-NAME:root -H Content-Type:application/json

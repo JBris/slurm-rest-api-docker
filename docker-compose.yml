@@ -19,7 +19,7 @@ services:
       context: .
       args:
         SLURM_TAG: ${SLURM_TAG:-slurm-21-08-6-1}
-    command: ["slurmdbd"]
+    command: [ "slurmdbd" ]
     container_name: slurmdbd
     hostname: slurmdbd
     volumes:
@@ -33,7 +33,7 @@ services:
 
   slurmctld:
     image: slurm-docker-cluster:${IMAGE_TAG:-21.08}
-    command: ["slurmctld"]
+    command: [ "slurmctld" ]
     container_name: slurmctld
     hostname: slurmctld
     volumes:
@@ -48,7 +48,7 @@ services:
 
   c1:
     image: slurm-docker-cluster:${IMAGE_TAG:-21.08}
-    command: ["slurmd"]
+    command: [ "slurmd" ]
     hostname: c1
     container_name: c1
     volumes:
@@ -63,7 +63,8 @@ services:
 
   c2:
     image: slurm-docker-cluster:${IMAGE_TAG:-21.08}
-    command: ["slurmd"]
+    entrypoint: [ "sh", "-c" ]
+    command: [ "/usr/share/bin/slurmrestd.sh" ]
     hostname: c2
     container_name: c2
     volumes:
@@ -71,10 +72,14 @@ services:
       - etc_slurm:/etc/slurm
       - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
+      - ./slurmrestd.sh:/usr/share/bin/slurmrestd.sh:rwx
     expose:
       - "6818"
+      - "9200"
+    ports:
+      - 9200:9200
     depends_on:
-      - "slurmctld"
+      - "c1"
 
 volumes:
   etc_munge:
