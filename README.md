@@ -21,8 +21,6 @@ Within the *c2* node, set the JSON web token: `export $(docker compose exec c2 s
 
 Test that you can access the SLURM API: `curl -k -vvvv -H X-SLURM-USER-TOKEN:$SLURM_JWT -H X-SLURM-USER-NAME:root -X GET 'http://localhost:9200/openapi/v3' > docs.json`
 
-Export the API version: `export SLURM_API_VERSION=v0.0.37`
-
 Submit a SLURM job: `curl -X POST "http://localhost:9200/slurm/v0.0.37/job/submit" -H "X-SLURM-USER-NAME:root" -H "X-SLURM-USER-TOKEN:${SLURM_JWT}" -H "Content-Type: application/json" -d @rest_api_test.json`
 
 Check that the SLURM job completed successfully: `docker compose exec c1 cat /root/test.out`
