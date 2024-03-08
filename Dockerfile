@@ -137,7 +137,7 @@ RUN set -x \
     && chmod 600 /etc/slurm/slurmdbd.conf \
     && chown slurm:slurm /etc/slurm/slurm.conf \
     && chmod 0755 /etc/slurm/slurm.conf \
-    && chown rest:rest /usr/share/bin/slurmrestd.sh \
+    && chown slurm:slurm /usr/share/bin/slurmrestd.sh \
     && chmod 0755 /usr/share/bin/slurmrestd.sh
 
 RUN mkdir -p /var/spool/slurm/statesave \
