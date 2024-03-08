@@ -18,7 +18,7 @@ services:
     build:
       context: .
       args:
-        SLURM_TAG: ${SLURM_TAG:-slurm-21-08-6-1}
+        SLURM_TAG: ${SLURM_TAG:-slurm-23-02-6-1}
     command: [ "slurmdbd" ]
     container_name: slurmdbd
     hostname: slurmdbd

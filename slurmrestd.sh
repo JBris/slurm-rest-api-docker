@@ -12,5 +12,7 @@ echo "-- slurmctld is now active ..."
 sacctmgr -i add account rest 
 sacctmgr -i add user rest account=rest
 
+export SLURMRESTD_SECURITY=disable_unshare_files,disable_unshare_sysv
+
 SLURM_JWT=daemon SLURMRESTD_DEBUG=5 exec gosu rest /usr/sbin/slurmrestd 0.0.0.0:9200
 
