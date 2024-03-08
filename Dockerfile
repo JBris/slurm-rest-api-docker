@@ -138,7 +138,8 @@ RUN set -x \
     && chown slurm:slurm /etc/slurm/slurm.conf \
     && chmod 0755 /etc/slurm/slurm.conf \
     && chown slurm:slurm /usr/share/bin/slurmrestd.sh \
-    && chmod 0755 /usr/share/bin/slurmrestd.sh
+    && chmod 0755 /usr/share/bin/slurmrestd.sh \
+    && usermod -a -G slurm rest
 
 RUN mkdir -p /var/spool/slurm/statesave \
     && dd if=/dev/random of=/var/spool/slurm/statesave/jwt_hs256.key bs=32 count=1 \
