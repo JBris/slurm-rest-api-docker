@@ -72,7 +72,6 @@ services:
       - etc_slurm:/etc/slurm
       - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
-      - ./slurmrestd.sh:/usr/share/bin/slurmrestd.sh:rwx
     expose:
       - "6818"
       - "9200"
@@ -81,6 +80,11 @@ services:
     depends_on:
       - "c1"
 
+networks:
+  default:
+    name: slurm_rest_api
+    driver: bridge
+    
 volumes:
   etc_munge:
   etc_slurm:
