@@ -130,9 +130,15 @@ COPY slurm.conf /etc/slurm/slurm.conf
 
 COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
 
+COPY slurmrestd.sh /usr/share/bin/slurmrestd.sh
+
 RUN set -x \
     && chown slurm:slurm /etc/slurm/slurmdbd.conf \
-    && chmod 600 /etc/slurm/slurmdbd.conf
+    && chmod 600 /etc/slurm/slurmdbd.conf \
+    && chown slurm:slurm /etc/slurm/slurm.conf \
+    && chmod 0755 /etc/slurm/slurm.conf \
+    && chown rest:rest /usr/share/bin/slurmrestd.sh \
+    && chmod 0755 /usr/share/bin/slurmrestd.sh
 
 RUN mkdir -p /var/spool/slurm/statesave \
     && dd if=/dev/random of=/var/spool/slurm/statesave/jwt_hs256.key bs=32 count=1 \
