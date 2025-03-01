@@ -7,6 +7,7 @@
 - [Introduction](#introduction)
 - [REST API](#rest-api)
 - [SLURM job arrays](#slurm-job-arrays)
+- [Get status](#get-status)
 
 # Introduction
 
@@ -27,3 +28,10 @@
 1. Submit a SLURM job: `curl -X POST "http://localhost:9200/slurm/v0.0.37/job/submit" -H "X-SLURM-USER-NAME:root" -H "X-SLURM-USER-TOKEN:${SLURM_JWT}" -H "Content-Type: application/json" -d @rest_api_array_job_test.json`
 2. Check that SLURM job arrays work: `docker compose exec c1 sh -c "cat /root/test_*.out"`
 3. Check for errors: `docker compose exec c1 sh -c "cat /root/test_*.err"`
+
+# Get status
+
+1. Submit a SLURM job: `curl -X POST "http://localhost:9200/slurm/v0.0.37/job/submit" -H "X-SLURM-USER-NAME:root" -H "X-SLURM-USER-TOKEN:${SLURM_JWT}" -H "Content-Type: application/json" -d @rest_api_array_job_test_wait.json`
+2. Get queue status: `docker compose exec c1 squeue --me`
+3. Get job status: `curl -k -vvvv -H X-SLURM-USER-TOKEN:${SLURM_JWT} -H X-SLURM-USER-NAME:root -X GET 'http://localhost:9200/slurm/v0.0.37/job/${JOB_ID}'`
+4. $JOB_ID examples for arrays: `10; 10_1; 10_[1-10]` 
