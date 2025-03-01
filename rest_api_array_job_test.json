@@ -1,0 +1,18 @@
+{
+    "job": {
+        "name": "test",
+        "ntasks": 1,
+        "nodes": 1,
+        "cpus_per_task": 1,
+        "array": "1-10",
+        "current_working_directory": "/root",
+        "standard_input": "/dev/null",
+        "standard_output": "/root/test_%A_%a.out",
+        "standard_error": "/root/test_error_%A_%a.err",
+        "environment": {
+            "PATH": "/bin:/usr/bin/:/usr/local/bin/",
+            "LD_LIBRARY_PATH": "/lib/:/lib64/:/usr/local/lib"
+        }
+    },
+    "script": "#!/bin/bash\n echo SLURM REST API job array works $SLURM_ARRAY_TASK_ID"
+}
